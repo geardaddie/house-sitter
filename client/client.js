@@ -19,7 +19,18 @@ Template.showHouse.helpers({
 	}
 });
 
+Template.showHouse.events({
+		'click button#delete': function deleteButtonClick(evt) {
+		var house = this;
+		var deleteConfirmation = confirm("Really delete this house?");
+		if (deleteConfirmation) {
+			Houses.remove(house._id);
+		}
+	}
+});
+
 Template.plantDetails.events({
+	'click button.water': function waterButtonClicked(evt) {
 		var plantId = $(evt.currentTarget).attr('data-id');
 		Session.set(plantId, true);
 
@@ -32,6 +43,21 @@ Template.plantDetails.helpers({
 	isWatered: function isWatered() {
 		var plantId = Session.get("selectedHouse") + '-' + this.color;
 		return Session.get(plantId) ? 'disabled' : '';
+	}
+});
+
+Template.houseForm.events({
+	'click button#saveHouse': function saveHouseClick(evt) {
+		evt.preventDefault();
+		var houseName = $("input[id=house-name]").val();
+		var plantColor = $("input[id=plant-color]").val();
+		var plantInstructions = $("input[id=instructions]").val();
+
+		Session.set("selectedHouse", Houses.insert({
+				name: houseName, 
+				plants: [{color: plantColor, instructions: plantInstructions}]
+			}
+		));
 	}
 });
 
