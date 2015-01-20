@@ -1,3 +1,7 @@
+var emptyHouse = {name: "", plants: []};
+var editObject;
+var reactiveHouseObject = new ReactiveVar(emptyHouse);
+
 Template.selectHouse.helpers({
 	houseNameId: function houseNameId() {
 		return Houses.find({}, {fields: {name: 1, _id: 1} });
@@ -10,12 +14,8 @@ Template.selectHouse.helpers({
 Template.selectHouse.events({
 	'change #selectHouse': function selectedHouseChange(evt) {
 		Session.set("selectedHouse", evt.currentTarget.value);
-	}
-});
-
-Template.showHouse.helpers({
-	house: function house() {
-		return Houses.findOne({_id: Session.get("selectedHouse")});
+		reactiveHouseObject.set(Houses.findOne({_id: Session.get('selectedHouse')}) || emptyHouse);
+		Session.set("selectedHouse", evt.currentTarget.value);
 	}
 });
 
@@ -59,6 +59,19 @@ Template.houseForm.events({
 			}
 		));
 	}
+});
+
+Template.registerHelper('selectedHouse', function() {
+	return reactiveHouseObject.get();
+});
+
+Template.registerHelper('withIndex', function (list) {
+	var withIndex = _.map(list, function (v, i) {
+		v.index = i;
+		return v;
+	});
+
+	return withIndex;
 });
 
 Tracker.autorun(function logConsole() {

@@ -6,7 +6,7 @@
 	<h1>The House-Sitter</h1>
 	{{> selectHouse }}
 	{{> showHouse }}
-	{{> houseForm }}
+	{{> houseForm selectedHouse }}
 </body>
 
 <template name="selectHouse">
@@ -19,7 +19,7 @@
 </template>
 
 <template name="showHouse">
-	{{#with house}}
+	{{#with selectedHouse}}
 		<h2>Taking care of {{name}}'s house</h2>
 		{{#each plants}}
 			{{> plantDetails}}
@@ -43,14 +43,25 @@
 
 
 <template name="houseForm">
-	<h3>Add a house</h3>
+	<h3>Edit {{name}}'s house</h3>
 	<form id="houseForm">
-		Name <input id="house-name" type="text" placeholder="Name"><br/>
-		Plant<br/>
-		Color <input id="plant-color" type="text">
-		Instructions <input id="instructions" type="text">
+		<fieldset id="house-name">
+			Name <input type="text" placeholder="Name" value="{{name}}"><br/>
+		</fieldset>
+		<label>Plants</label>
+		{{#each withIndex plants}}
+			{{> plantFieldset}}
+		{{/each}}
+		<button class="addPlant">Add Plant</button>
 		<br/>
-		<br/>
-		<button id="saveHouse">Save House</button>
+		<button id="saveHouse" data-id="{{_id}}">Save House</button>
 	</form>
 </template>
+
+<template name="plantFieldset">
+	<fieldset>
+		Color <input id="plant-color" type="text" value="{{color}}" data-index="{{index}}">
+		Instructions <input id="instructions" type="text" value="{{instructions}}" data-index="{{index}}">
+		<button class="removePlant">Remove Plant</button>
+	</fieldset>
+</template>	
