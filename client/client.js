@@ -51,6 +51,24 @@ Template.plantFieldset.events({
     editObject = reactiveHouseObject.get();
     editObject.plants[thisPlantIndex][fieldName] = $(evt.currentTarget).val();
     storeReactiveHouseObject(editObject);
+
+    if (fieldName == 'color') {
+      var currentColor = editObject.plants[thisPlantIndex]['color'];
+      var plantsArray = reactiveHouseObject.get().plants;
+      var colorCount = 0;
+      for (i in plantsArray) {
+        if (plantsArray[i]['color'] === currentColor) {
+          colorCount++;
+        }
+      }
+      if (colorCount !== 1) {
+        $(evt.currentTarget).css("background-color", "red");
+        $("button#saveHouse").attr("disabled", "disabled");
+      } else {
+        $(evt.currentTarget).css("background-color", "");
+        $("button#saveHouse").removeAttr("disabled", "disabled");
+      }
+    }
   }
 });
 
