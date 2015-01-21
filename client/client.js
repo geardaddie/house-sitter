@@ -27,10 +27,11 @@ Template.selectHouse.events({
 
 Template.showHouse.events({
 		'click button#delete': function (evt) {
-		var house = this;
+		var id = $(evt.currentTarget).attr('data-id');
 		var deleteConfirmation = confirm("Really delete this house?");
 		if (deleteConfirmation) {
-			Houses.remove(house._id);
+			Houses.remove(id);
+      reactiveHouseObject.set(emptyHouse);
 		}
 	}
 });
@@ -60,6 +61,9 @@ Template.plantDetails.events({
 
 		var lastVisit = new Date();
 		Houses.update({_id: Session.get("selectedHouse")}, {$set: {lastVisit: lastVisit }});
+    editObject = reactiveHouseObject.get();
+    editObject.lastVisit = lastVisit;
+    reactiveHouseObject.set(editObject);
 	}
 });
 
@@ -73,23 +77,22 @@ Template.plantDetails.helpers({
 Template.houseForm.events({
 	'click button#saveHouse': function (evt) {
 		evt.preventDefault();
-		// copy properties out of HTML elements 
-		var houseName = $("input[id=house-name]").val();
-		var plantColor = $("input[id=plant-color]").val();
-		var plantInstructions = $("input[id=instructions]").val();
-
-		Session.set("selectedHouse", Houses.insert({
-				name: houseName, 
-				plants: [{color: plantColor, instructions: plantInstructions}]
-			}
-		));
+    editObject = reactiveHouseObject.get();
+    delete editObject.edited;
+    editObject._id = Houses.upsert({_id: reactiveHouseObject.get()._id}, 
+      reactiveHouseObject.get()).insertedId || reactiveHouseObject.get()._id;    
+		
+    Session.set("selectedHouse", editObject._id);
+    reactiveHouseObject.set(editObject);
 	},
+
   'click button.addPlant': function (evt) {
     evt.preventDefault();
     editObject = reactiveHouseObject.get();
     editObject.plants.push({color: '', instructions: ''});
     storeReactiveHouseObject(editObject);
   },
+
   'keyup input.name': function (evt) {
     editObject = reactiveHouseObject.get();
     editObject.name = $(evt.currentTarget).val();
